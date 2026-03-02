@@ -15,14 +15,11 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
-    // Agar user logged in nahi ya doctor nahi hai to query mat chalao
     if (!user || role !== "doctor") return;
 
-    // Sirf is doctor ke "Pending" appointments lao
     const q = query(
       collection(db, "appointments"),
       where("status", "==", "Pending"),
-      // where("doctorEmail", "==", user.email), // Isay tab enable karein jab aap appointment mein doctor ki email save kar rahe hon
       orderBy("createdAt", "desc"),
     );
 
@@ -33,7 +30,6 @@ export default function DoctorDashboard() {
     return () => unsub();
   }, [user, role]);
 
-  // Report Generate karne ka basic function
   const handleGenerateReport = (patientName) => {
     alert(
       `Generating Medical Report for ${patientName}... \n(Tip: Install jsPDF to download this as PDF)`,
@@ -47,7 +43,6 @@ export default function DoctorDashboard() {
       </div>
     );
 
-  // Security Guard
   if (role !== "doctor" && role !== "admin") {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -64,7 +59,6 @@ export default function DoctorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 text-black">
-      {/* Header Section */}
       <header className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm border gap-4">
         <div className="flex items-center gap-4">
           <button
@@ -98,7 +92,6 @@ export default function DoctorDashboard() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Patient Queue */}
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-6 border-b pb-4">
             <h2 className="text-xl font-bold text-gray-800">
@@ -155,7 +148,6 @@ export default function DoctorDashboard() {
           )}
         </div>
 
-        {/* Right Sidebar */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="font-bold text-lg mb-4 text-gray-800">
@@ -164,7 +156,7 @@ export default function DoctorDashboard() {
             <div className="flex flex-col gap-3">
               <Link href="/appointments/create">
                 <button className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition">
-                  ➕ Book New Visit
+                  + Book New Visit
                 </button>
               </Link>
               <p className="text-xs text-center text-gray-400 mt-2 italic">
@@ -173,7 +165,7 @@ export default function DoctorDashboard() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-6 rounded-2xl text-white shadow-lg">
+          <div className="bg-linear-to-br from-indigo-600 to-blue-700 p-6 rounded-2xl text-white shadow-lg">
             <h3 className="font-bold text-lg">Daily Goal</h3>
             <p className="text-sm text-blue-100 mt-2">
               You have completed 0/10 checkups today. Keep it up!

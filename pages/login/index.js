@@ -3,21 +3,20 @@ import { auth, db } from "../lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
-import { useAuth } from "../lib/authContext"; // useAuth import kiya
+import { useAuth } from "../lib/authContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loadingLocal, setLoadingLocal] = useState(false);
   const router = useRouter();
-  const { user, role, loading } = useAuth(); // Global auth state
-
-  // --- Redirect Logic: Agar user pehle se logged in hai to login page skip kare ---
+  const { user, role, loading } = useAuth();
   useEffect(() => {
     if (!loading && user && role) {
       if (role === "admin") router.replace("/dashboard/AdminDashboard");
       else if (role === "doctor") router.replace("/dashboard/DoctorDashboard");
-      else if (role === "receptionist") router.replace("/dashboard/StaffDashboard");
+      else if (role === "receptionist")
+        router.replace("/dashboard/StaffDashboard");
     }
   }, [user, role, loading, router]);
 
@@ -26,21 +25,18 @@ export default function Login() {
     setLoadingLocal(true);
 
     try {
-      // 1. Firebase Auth se login karein
       const { user: loggedInUser } = await signInWithEmailAndPassword(
         auth,
         email,
         password,
       );
 
-      // 2. Firestore se user ka role check karein
       const userDoc = await getDoc(doc(db, "users", loggedInUser.uid));
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const userRole = userData.role;
 
-        // Check if account is disabled (Optional but recommended)
         if (userData.status === "disabled") {
           alert("Your account is disabled. Contact Admin.");
           setLoadingLocal(false);
@@ -49,7 +45,6 @@ export default function Login() {
 
         alert(`Welcome back, ${userData.name}!`);
 
-        // 3. Role ke mutabiq redirect (router.replace use kiya taaki history clear ho jaye)
         if (userRole === "admin") {
           router.replace("/dashboard/AdminDashboard");
         } else if (userRole === "doctor") {
@@ -70,7 +65,6 @@ export default function Login() {
     }
   };
 
-  // Jab tak check ho raha hai ke user logged in hai ya nahi, screen blank ya loading rakhein
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen text-black">

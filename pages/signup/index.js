@@ -40,9 +40,10 @@ export default function Signup() {
       });
 
       alert("Account Created!");
-      // Role ke mutabiq sahi dashboard par bhejein
+
       if (formData.role === "admin") router.push("/dashboard/AdminDashboard");
-      else if (formData.role === "doctor") router.push("/dashboard/DoctorDashboard");
+      else if (formData.role === "doctor")
+        router.push("/dashboard/DoctorDashboard");
       else router.push("/dashboard/StaffDashboard");
     } catch (error) {
       alert(error.message);
@@ -99,7 +100,6 @@ export default function Signup() {
           {loading ? "Creating..." : "Sign Up"}
         </button>
 
-        {/* --- YAHAN DALNA HAI YE CODE --- */}
         <div className="text-center mt-2">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
@@ -112,7 +112,6 @@ export default function Signup() {
             </button>
           </p>
         </div>
-        {/* ------------------------------ */}
       </form>
     </div>
   );

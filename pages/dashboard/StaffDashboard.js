@@ -5,7 +5,7 @@ import { useAuth } from "../lib/authContext";
 import Link from "next/link";
 
 export default function StaffDashboard() {
-  const { user, role, loading, logout } = useAuth(); // Logout bhi add kar liya
+  const { user, role, loading, logout } = useAuth();
   const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
@@ -26,7 +26,6 @@ export default function StaffDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 text-black">
-      {/* Header Section */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white p-6 rounded-xl shadow-sm border gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
@@ -36,22 +35,18 @@ export default function StaffDashboard() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {/* Naya Patient Register karne ka Button */}
           <Link href="/patients/addPatients">
             <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold transition shadow-md">
               + Register Patient
             </button>
           </Link>
 
-          {/* Appointment Book karne ka Button (Access Granted) */}
           <Link href="/appointments/create">
             <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-semibold transition shadow-md">
               📅 Book Appointment
             </button>
           </Link>
-
-          {/* Logout Button */}
-          <button 
+          <button
             onClick={logout}
             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-semibold transition shadow-md"
           >
@@ -60,16 +55,19 @@ export default function StaffDashboard() {
         </div>
       </header>
 
-      {/* Stats Cards (Optional but looks professional) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-          <p className="text-sm text-gray-500 uppercase font-bold">Total Bookings</p>
+          <p className="text-sm text-gray-500 uppercase font-bold">
+            Total Bookings
+          </p>
           <p className="text-2xl font-bold">{appointments.length}</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-yellow-500">
-          <p className="text-sm text-gray-500 uppercase font-bold">Pending Today</p>
+          <p className="text-sm text-gray-500 uppercase font-bold">
+            Pending Today
+          </p>
           <p className="text-2xl font-bold">
-            {appointments.filter(a => a.status === "Pending").length}
+            {appointments.filter((a) => a.status === "Pending").length}
           </p>
         </div>
       </div>
@@ -84,27 +82,38 @@ export default function StaffDashboard() {
                   <th className="p-3 border text-gray-700">Patient Name</th>
                   <th className="p-3 border text-gray-700">Date & Time</th>
                   <th className="p-3 border text-gray-700">Status</th>
-                  <th className="p-3 border text-center text-gray-700">Actions</th>
+                  <th className="p-3 border text-center text-gray-700">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {appointments.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="p-10 text-center text-gray-400">No appointments found.</td>
+                    <td colSpan="4" className="p-10 text-center text-gray-400">
+                      No appointments found.
+                    </td>
                   </tr>
                 ) : (
                   appointments.map((app) => (
                     <tr key={app.id} className="hover:bg-gray-50 transition">
-                      <td className="p-3 border font-medium">{app.patientName}</td>
+                      <td className="p-3 border font-medium">
+                        {app.patientName}
+                      </td>
                       <td className="p-3 border text-sm">
-                        {app.date} <span className="text-gray-400">|</span> {app.time}
+                        {app.date} <span className="text-gray-400">|</span>{" "}
+                        {app.time}
                       </td>
                       <td className="p-3 border">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          app.status === "Completed" ? "bg-green-100 text-green-700" :
-                          app.status === "Cancelled" ? "bg-red-100 text-red-700" :
-                          "bg-yellow-100 text-yellow-700"
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            app.status === "Completed"
+                              ? "bg-green-100 text-green-700"
+                              : app.status === "Cancelled"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
                           {app.status}
                         </span>
                       </td>
