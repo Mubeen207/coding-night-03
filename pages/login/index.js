@@ -20,45 +20,51 @@ export default function Login() {
     }
   }, [user, role, loading, router]);
 
-  const handleLogin = async (e) => {
+ const handleLogin = async (e) => {
     e.preventDefault();
     setLoadingLocal(true);
 
     try {
+      // 1. Pehle Firebase Auth se login karein (Abhi tak uid nahi mili)
       const { user: loggedInUser } = await signInWithEmailAndPassword(
         auth,
         email,
-        password,
+        password
       );
 
+      // 2. Login hone ke BAAD uid milegi, ab Firestore se status check karein
       const userDoc = await getDoc(doc(db, "users", loggedInUser.uid));
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const userRole = userData.role;
 
-        if (userData.status === "disabled") {
-          alert("Your account is disabled. Contact Admin.");
+        // --- BLACKLIST & DISABLE CHECK ---
+        if (userData.status === "blacklisted" || userData.status === "disabled") {
+          await auth.signOut(); // Session khatam karein
+          alert("🚫 ACCESS DENIED: Your account is blacklisted or disabled. Contact Admin.");
           setLoadingLocal(false);
-          return;
+          return; // Yahin se wapas bhej dein
         }
 
         alert(`Welcome back, ${userData.name}!`);
 
+        // 3. Role ke mutabiq sahi dashboard par bhejein
         if (userRole === "admin") {
           router.replace("/dashboard/AdminDashboard");
         } else if (userRole === "doctor") {
-          router.replace("/dashboard/doctor");
+          router.replace("/dashboard/DoctorDashboard");
         } else if (userRole === "receptionist") {
-          router.replace("/dashboard/staff");
+          router.replace("/dashboard/StaffDashboard");
         } else {
           router.replace("/dashboard");
         }
       } else {
         alert("User data not found in database!");
+        await auth.signOut();
       }
     } catch (error) {
-      console.error(error);
+      console.error("Login Error:", error);
       alert("Invalid email or password!");
     } finally {
       setLoadingLocal(false);

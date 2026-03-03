@@ -37,56 +37,66 @@ export default function StaffList() {
     fetchStaff();
   }, []);
 
-  const toggleStatus = async (id, currentStatus) => {
-    const newStatus = currentStatus === "disabled" ? "active" : "disabled";
-    if (confirm(`Mark this staff member as ${newStatus}?`)) {
-      const staffRef = doc(db, "users", id);
-      await updateDoc(staffRef, { status: newStatus });
+  const toggleBlacklist = async (id, currentStatus) => {
+    const newStatus =
+      currentStatus === "blacklisted" ? "active" : "blacklisted";
+    const confirmMsg =
+      newStatus === "blacklisted"
+        ? "🚫 Are you sure? This staff member will be logged out and blocked immediately."
+        : "✅ Restore access for this staff member?";
 
-      setStaffMembers(
-        staffMembers.map((s) =>
-          s.id === id ? { ...s, status: newStatus } : s,
-        ),
-      );
+    if (confirm(confirmMsg)) {
+      try {
+        const staffRef = doc(db, "users", id);
+        await updateDoc(staffRef, { status: newStatus });
+
+        setStaffMembers(
+          staffMembers.map((s) =>
+            s.id === id ? { ...s, status: newStatus } : s,
+          ),
+        );
+      } catch (error) {
+        console.error("Error updating status:", error);
+        alert("Failed to update status.");
+      }
     }
   };
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-75 w-full animate-in fade-in duration-500">
-        <div className="relative flex items-center gap-4 bg-white/80 backdrop-blur-md px-8 py-5 rounded-4xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.05)] border border-slate-100">
+      <div className="flex flex-col items-center justify-center min-h-screen w-full animate-in fade-in duration-500">
+        <div className="relative flex items-center gap-4 bg-white/80 backdrop-blur-md px-8 py-5 rounded-4xl shadow-lg border border-slate-100">
           <div className="flex gap-1">
-            <span className="w-1.5 h-6 bg-blue-600 rounded-full animate-[bounce_1s_infinite_0.1s]"></span>
-            <span className="w-1.5 h-6 bg-blue-500 rounded-full animate-[bounce_1s_infinite_0.2s]"></span>
-            <span className="w-1.5 h-6 bg-blue-400 rounded-full animate-[bounce_1s_infinite_0.3s]"></span>
+            <span className="w-1.5 h-6 bg-blue-600 rounded-full animate-bounce"></span>
+            <span className="w-1.5 h-6 bg-blue-500 rounded-full animate-bounce delay-75"></span>
+            <span className="w-1.5 h-6 bg-blue-400 rounded-full animate-bounce delay-150"></span>
           </div>
-
           <div className="flex flex-col">
-            <span className="text-slate-800 font-black text-sm uppercase tracking-[0.15em]">
-              Retrieving Data
+            <span className="text-slate-800 font-black text-sm uppercase tracking-widest">
+              Retrieving Staff
             </span>
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">
-              Staff Directory
+              Please Wait...
             </span>
           </div>
-
-          <div className="absolute -z-10 inset-0 bg-blue-50 rounded-4xl scale-110 blur-xl opacity-50 animate-pulse"></div>
         </div>
       </div>
     );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen text-black">
+    <div className="p-8 bg-gray-50 min-h-screen text-black font-sans">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Staff Management</h1>
-          <p className="text-gray-500">
-            Manage Receptionists and Support Staff
+          <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+            Staff Management
+          </h1>
+          <p className="text-gray-500 font-medium">
+            Manage Receptionists and Support Personnel
           </p>
         </div>
         <Link href="/dashboard/AdminDashboard">
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">
-            ← Back to Dashboard
+          <button className="bg-white border border-gray-200 text-gray-700 px-5 py-2 rounded-xl hover:bg-gray-50 transition shadow-sm font-bold text-sm">
+            ← Dashboard
           </button>
         </Link>
       </div>
@@ -94,11 +104,19 @@ export default function StaffList() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-100 border-b">
-              <th className="p-4 font-bold text-gray-700">Name</th>
-              <th className="p-4 font-bold text-gray-700">Email</th>
-              <th className="p-4 font-bold text-gray-700">Status</th>
-              <th className="p-4 font-bold text-center">Actions</th>
+            <tr className="bg-gray-50/50 border-b">
+              <th className="p-5 font-bold text-gray-600 text-sm uppercase tracking-wider">
+                Name
+              </th>
+              <th className="p-5 font-bold text-gray-600 text-sm uppercase tracking-wider">
+                Email
+              </th>
+              <th className="p-5 font-bold text-gray-600 text-sm uppercase tracking-wider">
+                Status
+              </th>
+              <th className="p-5 font-bold text-gray-600 text-sm uppercase tracking-wider text-center">
+                Security Action
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -106,42 +124,48 @@ export default function StaffList() {
               <tr>
                 <td
                   colSpan="4"
-                  className="p-10 text-center text-gray-400 italic"
+                  className="p-20 text-center text-gray-400 font-medium italic"
                 >
-                  No staff members found.
+                  No staff members currently in the directory.
                 </td>
               </tr>
             ) : (
               staffMembers.map((member) => (
                 <tr
                   key={member.id}
-                  className="border-b hover:bg-blue-50/30 transition"
+                  className="border-b hover:bg-blue-50/20 transition-colors"
                 >
-                  <td className="p-4 font-medium">{member.name}</td>
-                  <td className="p-4 text-gray-600">{member.email}</td>
-                  <td className="p-4">
+                  <td className="p-5 font-semibold text-gray-800">
+                    {member.name}
+                  </td>
+                  <td className="p-5 text-gray-600 font-medium">
+                    {member.email}
+                  </td>
+                  <td className="p-5">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        member.status === "disabled"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-green-100 text-green-600"
+                      className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm ${
+                        member.status === "blacklisted"
+                          ? "bg-red-50 text-red-600 border border-red-100"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-100"
                       }`}
                     >
-                      {member.status === "disabled"
-                        ? "🔴 Disabled"
-                        : "🟢 Active"}
+                      {member.status === "blacklisted"
+                        ? "● Blacklisted"
+                        : "● Active"}
                     </span>
                   </td>
-                  <td className="p-4 text-center">
+                  <td className="p-5 text-center">
                     <button
-                      onClick={() => toggleStatus(member.id, member.status)}
-                      className={`text-sm font-semibold px-4 py-1.5 rounded-md transition ${
-                        member.status === "disabled"
-                          ? "bg-green-600 text-white hover:bg-green-700"
-                          : "bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-600"
+                      onClick={() => toggleBlacklist(member.id, member.status)}
+                      className={`text-xs font-black uppercase tracking-tighter px-6 py-2.5 rounded-xl transition-all duration-300 shadow-sm border ${
+                        member.status === "blacklisted"
+                          ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700 hover:shadow-emerald-200"
+                          : "bg-gray-900 text-white border-gray-800 hover:bg-black hover:shadow-gray-300"
                       }`}
                     >
-                      {member.status === "disabled" ? "Enable" : "Disable"}
+                      {member.status === "blacklisted"
+                        ? "✅ Whitelist Access"
+                        : "🚫 Blacklist Access"}
                     </button>
                   </td>
                 </tr>
@@ -149,6 +173,15 @@ export default function StaffList() {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-6 bg-amber-50 border border-amber-100 p-4 rounded-xl">
+        <p className="text-amber-700 text-xs font-bold leading-relaxed">
+          <span className="mr-2">⚠️</span>
+          ADMIN NOTE: Blacklisting a receptionist will terminate their active
+          session and block all subsequent login attempts until they are
+          whitelisted.
+        </p>
       </div>
     </div>
   );

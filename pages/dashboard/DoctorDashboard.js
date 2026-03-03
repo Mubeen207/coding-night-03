@@ -135,12 +135,11 @@ export default function DoctorDashboard() {
                         Start Session
                       </button>
                     </Link>
-                    <button
-                      onClick={() => handleGenerateReport(app.patientName)}
-                      className="bg-gray-50 border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 text-sm font-bold"
-                    >
-                      Report
-                    </button>
+                    <Link href={`/reports/${app.id}`}>
+                      <button className="bg-gray-50 border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 text-sm font-bold">
+                        📄 View Report
+                      </button>
+                    </Link>
                   </div>
                 </div>
               ))}
